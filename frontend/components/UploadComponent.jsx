@@ -1,15 +1,24 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export const UploadComponent = () => {
+const UploadComponent = ({ isEditing = false, existingVideo = null }) => {
   const router = useRouter();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     video: null,
   });
+
+  useEffect(() => {
+    if (isEditing && existingVideo) {
+      setFormData({
+        title: existingVideo.title,
+        description: existingVideo.description,
+      });
+    }
+  }, [isEditing, existingVideo]);
 
   const createVideo = async (videoId) => {
     try {
@@ -37,10 +46,46 @@ export const UploadComponent = () => {
     }
   };
 
+  const updateVideo = async (videoId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:1337/api/videos/${videoId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data: {
+              title: formData.title,
+              description: formData.description,
+              content: { id: existingVideo.content.id },
+            },
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    if (isEditing) {
+      await updateVideo(existingVideo?.documentId);
+      return;
+    }
+
     const video = await createVideo();
+
     const videoId = video.data.id;
 
     const videoFormData = new FormData();
@@ -110,25 +155,31 @@ export const UploadComponent = () => {
             onChange={handleChange}
           ></textarea>
 
-          <label htmlFor="video" className="block mb-2">
-            Video
-          </label>
-          <input
-            type="file"
-            id="video"
-            name="video"
-            className="border p-2 w-full"
-            accept="video/*"
-            onChange={handleFileChange}
-          />
+          {!isEditing && (
+            <>
+              <label htmlFor="video" className="block mb-2">
+                Video
+              </label>
+              <input
+                type="file"
+                id="video"
+                name="video"
+                className="border p-2 w-full"
+                accept="video/*"
+                onChange={handleFileChange}
+              />
+            </>
+          )}
         </div>
       </div>
       <button
         type="submit"
         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
       >
-        Upload
+        {isEditing ? "Update" : "Upload"}
       </button>
     </form>
   );
 };
+
+export default UploadComponent;

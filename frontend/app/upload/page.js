@@ -1,4 +1,4 @@
-import { UploadComponent } from "@/components/UploadComponent";
+import UploadComponent from "@/components/UploadComponent";
 
 export default async function UploadPage() {
   return (

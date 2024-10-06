@@ -14,20 +14,52 @@ async function getVideos() {
 export default async function Home() {
   const response = await getVideos();
 
+  console.log(response);
+
+
+
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
-      <h1 className="text-3xl font-bold mb-4">Video Gallery</h1>
-      <Link href="/upload">
-        <button className="bg-blue-500 text-white px-4 py-2 rounded-md">Upload Video</button>
+        <h1 className="text-3xl font-bold mb-4">Video Gallery</h1>
+        <div className="flex gap-4">
+        <Link href="/manage">
+          <button className="bg-blue-500 text-white px-4 py-2 rounded-md">
+            Manage
+          </button>
         </Link>
+
+        <Link href="/upload">
+          <button className="bg-blue-500 text-white px-4 py-2 rounded-md">
+            Upload Video
+          </button>
+        </Link>
+        </div>
+     
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {response.data.map((video) => (
-          <div key={video.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div
+            key={video.id}
+            className="bg-white rounded-lg shadow-md overflow-hidden"
+          >
             <h2 className="text-xl font-semibold p-2">{video.title}</h2>
-            <video className="w-full" controls src={`http://localhost:1337/${video.content.url}`} />
+            <video
+              className="w-full"
+              controls
+              src={`http://localhost:1337/${video.content.url}`}
+            />
             <p className="text-gray-600 p-2">{video.description}</p>
+
+            {/* <div className="flex justify-end">
+              <button
+                onClick={() => handleDelete(video.id)}
+                className="bg-red-500 text-white px-4 py-2 rounded-md m-4"
+              >
+                Delete
+              </button>
+            </div> */}
           </div>
         ))}
       </div>
